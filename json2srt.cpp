@@ -4,47 +4,67 @@
 #include <iomanip>
 #include <dirent.h>
 #include <cstring>
-void Json_srt(const char* name);
 
-int main() {
-    // 无需 system("pause")，在 Linux 下运行会自动等待用户输入
-    std::string inPath = "*.json";  // 待处理的json文件
-    DIR *dir;
-    struct dirent *ent;
-    
-    if ((dir = opendir(".")) != NULL) {
-        while ((ent = readdir(dir)) != NULL) {
-            std::string filename = ent->d_name;
-            if (filename.find(".json") != std::string::npos) {
-                Json_srt(filename.c_str());
-            }
+void Json_srt(const char* inputPath, const char* outputPath);
+
+int main(int argc, char *argv[]) {
+    std::cout << "Bilibili json2srt v1.0.0" << std::endl;
+    std::cout << " " << std::endl;
+    std::cout << "Usage: your_program -i input_file [-o output_file]" << std::endl;
+    std::cout << " " << std::endl;
+    std::cout << "Example:" << std::endl;
+    std::cout << " json2srt -i input.json -o output.srt" << std::endl;
+    std::cout << " " << std::endl;
+
+
+
+    std::string inputFileName, outputFileName;
+
+    for (int i = 1; i < argc; ++i) {
+        std::string arg = argv[i];
+
+        if (arg == "-i" && i + 1 < argc) {
+            inputFileName = argv[++i];
+        } else if (arg == "-o" && i + 1 < argc) {
+            outputFileName = argv[++i];
         }
-        closedir(dir);
-    } else {
-        perror("Could not open directory");
-        return -1;
     }
 
+    if (inputFileName.empty()) {
+        std::cerr << "Error: Input file not specified." << std::endl;
+        return 1;
+    }
+
+
+    Json_srt(inputFileName.c_str(), outputFileName.c_str());
+    std::cout.clear();
+    std::cout << "Success" << std::endl;
     return 0;
 }
 
-void Json_srt(const char* name) {
+void Json_srt(const char* inputPath, const char* outputPath) {
     std::ifstream openfile;
     std::string temp;
     std::string buffer;
     char Newname[256] = {0};
 
-    openfile.open(name, std::ios::in);
+    openfile.open(inputPath, std::ios::in);
     int i = 0;
-    while (name[i] != '.') {
-        Newname[i] = name[i];
+    while (inputPath[i] != '.') {
+        Newname[i] = inputPath[i];
         i++;
     }
-    strcat(Newname, ".srt");
+    
+
+    if (outputPath != nullptr && outputPath[0] != '\0') {
+        strcpy(Newname, outputPath);
+    } else {
+        strcat(Newname, ".srt");
+    }
 
     std::ofstream outfile(Newname, std::ios::out);
     if (!openfile.is_open()) {
-        std::cout << "Error opening file: " << name << std::endl;
+        std::cout << "Error opening file: " << inputPath << std::endl;
         return;
     }
 
