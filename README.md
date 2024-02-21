@@ -1,0 +1,2 @@
+# bilibilijson2srt
+将哔哩哔哩json字幕文件转换为srt
